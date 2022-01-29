@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+
+  <!-- moment -->
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
+  <title>전체 글 목록</title>
+  <script>
+    $(document).ready(function () {
+      takeData();
+      console.log(localStorage.getItem('token'));
+      if (localStorage.getItem('token')) {
+        $('#login-button').hide();
+        $('#logout-button').show();
+      } else {
+        $('#login-button').show();
+        $('#logout-button').hide();
+      }
+    });
+
+    function toWrite() {
+      if (localStorage.getItem('token')) {
+        location.href = '/write';
+      } else {
+        location.href = '/login'
+        alert('로그인이 필요합니다!');
+      }
+    }
+
+    function toLogin() {
+      location.href = '/login';
+      if (localStorage.getItem('token')) {
+        alert('이미 로그인 되어 있습니다!');
+      }
+    }
+
+    // DB에 있는 정보를 가져오는 함수
+    function takeData() {
+      $.ajax({
+        type: 'GET',
+        dataType: 'json',
+        async: true,
+        url: '/api/fromWrite',
+        data: {},
+        success: function (response) {
+          let writeList = response['list'];
+          for (let i = 0; i < writeList.length; i++) {
+            let name = writeList[i]["name"];
+            let title = writeList[i]["title"];
+            let date = writeList[i]["createDate"];
+            let id = writeList[i]["_id"];
+
+            let temp_html = `<tr>
+                              <td><a href="/inboard/${id}">${title}</a></td>
+                              <td>${name}</td>
+                              <td>${moment(date).format('YY/MM/DD')}</td>
+                             </tr>`
+            $('#article-area').prepend(temp_html);
+          }
+        }
+      });
+    }
+
+    // 로그아웃 함수
+    function toLogout() {
+      localStorage.removeItem('token');
+      location.reload();
+      alert('로그아웃 됐습니다!');
+    }
+  </script>
+</head>
+
+<body>
+  <button type="button" class="btn btn-primary" id="login-button" onclick="toLogin()">로그인</button>
+  <button type="button" class="btn btn-primary" id="logout-button" onclick="toLogout()">로그아웃</button>
+  <table class="table table-hover">
+    <thead>
+      <tr>
+        <th scope="col">제목</th>
+        <th scope="col">작성자</th>
+        <th scope="col">날짜</th>
+      </tr>
+    </thead>
+    <tbody id="article-area">
+
+    </tbody>
+  </table>
+
+  <button type="button" class="btn btn-primary" onclick="toWrite()">글쓰기</button>
+</body>
+
+</html>
