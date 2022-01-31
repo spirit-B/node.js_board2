@@ -60,24 +60,15 @@ router.post('/auth', async(req, res) => {
         return;
     }
 
-    const token = jwt.sign({ userId: user._id }, 'bans-secret-key');
+    const token = jwt.sign({ userId: user._id, nickname: user.nickname  }, 'bans-secret-key');
     res.send({
         token,
         success: '로그인 성공!'
     });
+    let decoded = jwt.verify(token, 'bans-secret-key');
     console.log(token);
-    console.log();
+    console.log(decoded);
 });
-
-// auth(인증된 사용자만 접근 가능한 요청)
-router.get('/auth/me', authMiddleware, async(req, res) => {
-    const { user } = res.locals;
-    res.send({
-        user: {
-            nickname: user.nickname
-        }
-    });
-})
 
 // 글쓰기 데이터 저장 -> app.js : app.use(express.json())
 router.post('/toWrite', async (req, res) => {

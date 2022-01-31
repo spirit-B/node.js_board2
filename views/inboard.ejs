@@ -23,8 +23,36 @@
     <title>글 내용</title>
     <script>
         $(document).ready(function () {
+            getTokenData();
             $('#complete-modify-button').hide();
-        })
+        });
+
+        function getTokenData() {
+            $.ajax({
+                async: true,
+                type: 'GET',
+                url: '/api/gettoken/<%=list.id%>',
+                data: {},
+                dataType: 'json',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}` 
+                },
+                success: function(response) {
+                    let presentNick = response['nickname'];
+                    let commentNick = response['commentlist'];
+                    for (let i = 0; i < commentNick.length; i++) {
+                        let findNick = commentNick[i]['name'];
+                        if (presentNick === findNick ) {
+                            $(`#comment-modify-${findNick}`).show();
+                            $(`#comment-delete-${findNick}`).show();
+                        } else {
+                            $(`#comment-modify-${findNick}`).hide();
+                            $(`#comment-delete-${findNick}`).hide();
+                        }
+                    }
+                }
+            });
+        }
 
         function deleteDetail() {
             $.ajax({
@@ -101,7 +129,18 @@
                        async: true,
                        type: 'POST',
                        url: '/api/comment/<%=list.id%>',
-                       
+                       dataType: 'json',
+                       headers: { 
+                           authorization: `Bearer ${localStorage.getItem("token")}`
+                        },
+                       data: {
+                           contents: $('#input-comment').val()
+                       },
+                       success: function(response) {
+                           console.log('잘 작동됨')
+                           window.location.reload();
+                           alert(response['success'])
+                       }
                     });
                 }
             }
@@ -129,21 +168,33 @@
             <span class="input-group-text" id="basic-addon3">작성날짜</span>
         </div>
         <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"
-            placeholder="<%=list.createDate%>" readonly>
+            placeholder="<%=moment(list.createDate).format('YYYY/MM/DD')%>" readonly>
     </div>
     <textarea class="form-control" id="wrote_contents" rows="5" readonly><%=list.contents%></textarea>
 
     <div>
         <h3>댓글</h3>
-        <table class="table table-striped table-hover">
-            <tbody id="comment-area">
+        <table class="table table-hover">
+            <thead>
                 <tr>
-                    <td>테스트 이름</td>
-                    <td>안녕하십니까?</td>
-                    <td>
-                        <span class="float-end">22/01/29</span>
+                  <th scope="col">내용</th>
+                  <th scope="col">작성자</th>
+                  <th scope="col">날짜</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < commentlist.length; i++) { %>
+                <tr>
+                    <td><%=commentlist[i].contents%></td>
+                    <td><%=commentlist[i].name%></td>
+                    <td><%=moment(commentlist[i].createDate).format('YYYY/MM/DD')%>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button" id="comment-modify-<%=commentlist[i].name%>">수정</button>
+                            <button class="btn btn-default" type="button" id="comment-delete-<%=commentlist[i].name%>">삭제</button>
+                        </span>
                     </td>
                 </tr>
+                <% } %>
             </tbody>
         </table>
         <div class="input-group mb-3">

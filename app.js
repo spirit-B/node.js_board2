@@ -1,21 +1,29 @@
 const express = require("express"); //express 패키지를 불러온다.
 const connect = require('./schemas')
 const Boards = require('./schemas/boardSchema')
+const Comments = require('./schemas/commentSchema');
 const path = require('path')
 const app = express();
+
+// ejs 템플릿 내에서 moment를 사용하기 위한 호출
+app.locals.moment = require('moment');
 
 // 라우터 호출
 const port = 3000;
 const lookupRouter = require('./routes/lookup');
 const commentRouter = require('./routes/comment')
 const { data } = require("jquery");
+const req = require("express/lib/request");
+const { workerData } = require("worker_threads");
 
 // mongoDB 접속
 connect();
 
 
 // 라우터를 여러개 쓸때만 배열 형태로 사용함
-app.use('/api', [lookupRouter, commentRouter])
+app.use('/api', [lookupRouter, commentRouter]);
+
+
 
 // express에서 body로 전달된 데이터를 json 형식으로 읽기 위함
 app.use(express.urlencoded({extended: true}))
@@ -39,19 +47,22 @@ app.get('/write', (req, res) => {
     res.render('write');
 });
 
+// 회원가입 페이지
 app.get('/signup', (req, res) =>{
     res.render('signup');
 });
 
+// 로그인 페이지
 app.get('/login', (req, res) => {
     res.render('login');
 });
 
-// 게시글 조회 페이지
+// 게시글 조회 페이지 & 댓글 조회
 app.get('/inboard/:id', async (req, res) => {
     const { id } = req.params;
     const wroteData = await Boards.findById(id);
-    res.render('inboard', {list: wroteData})
+    const wroteComment = await Comments.find({articleId: id}).populate('articleId');
+    res.render('inboard', { list: wroteData, commentlist: wroteComment });
 });
 
 // 글쓴 데이터 삭제

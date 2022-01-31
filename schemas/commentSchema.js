@@ -2,28 +2,20 @@ const mongoose = require('mongoose');
 
 const commentSchema = mongoose.Schema({
     name: {
-        type: String,
+        type: String
     },
     contents: {
         type: String,
+        required: true
     },
     createDate: {
         type: Date,
-        default: Date.now,
+        default: Date.now
     },
-    commentId: {
-        type: mongoose.SchemaType.ObjectId,
-        ref: "User",
-        required: true,
+    articleId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Board'
     }
 })
-
-commentSchema.virtual('commentId').get(function () {
-    return this._id.toHexString();
-});
-
-commentSchema.set('toJSON', {
-    virtuals: true
-});
 
 module.exports = mongoose.model('Comment', commentSchema);
