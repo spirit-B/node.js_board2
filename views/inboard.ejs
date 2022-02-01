@@ -43,11 +43,9 @@
                     for (let i = 0; i < commentNick.length; i++) {
                         let findNick = commentNick[i]['name'];
                         if (presentNick === findNick ) {
-                            $(`#comment-modify-${findNick}`).show();
-                            $(`#comment-delete-${findNick}`).show();
-                        } else {
-                            $(`#comment-modify-${findNick}`).hide();
-                            $(`#comment-delete-${findNick}`).hide();
+                            console.log('작동중' + i);
+                            $(`#comment-modify-${findNick}`).removeClass('invisible');
+                            $(`#comment-delete-${findNick}`).removeClass('invisible');
                         }
                     }
                 }
@@ -145,6 +143,22 @@
                 }
             }
         }
+
+        // function deleteComment() {
+        //     $.ajax({
+        //         async: true,
+        //         type: 'POST',
+        //         url: '/api/delcomment/<%=list.id%>',
+        //         dataType: 'json',
+        //         headers: {
+        //             authorization: `Bearer ${localStorage.getItem("token")}` 
+        //         },
+        //         data: {},
+        //         success: function() {
+        //             console.log('삭제 작동 확인');
+        //         }
+        //     });
+        // }
     </script>
 </head>
 
@@ -189,8 +203,12 @@
                     <td><%=commentlist[i].name%></td>
                     <td><%=moment(commentlist[i].createDate).format('YYYY/MM/DD')%>
                         <span class="input-group-btn">
-                            <button class="btn btn-default" type="button" id="comment-modify-<%=commentlist[i].name%>">수정</button>
-                            <button class="btn btn-default" type="button" id="comment-delete-<%=commentlist[i].name%>">삭제</button>
+                            <form action='delcomment/<%=commentlist[i]._id%>' method="POST">
+                                <button class="btn btn-default invisible" type="button" 
+                                id="comment-modify-<%=commentlist[i].name%>">수정</button>
+                                <button class="btn btn-default invisible" type="button" 
+                                id="comment-delete-<%=commentlist[i].name%>"onclick="confirm('삭제하시겠습니까?')?this.parentElement.submit():null;">삭제</button>
+                            </form>
                         </span>
                     </td>
                 </tr>

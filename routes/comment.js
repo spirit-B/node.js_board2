@@ -36,6 +36,13 @@ router.get('/gettoken/:id', authMiddleware, async(req, res) => {
     res.json({ nickname: user['nickname'], commentlist: wroteComment });
 });
 
+// 댓글 삭제
+router.post('/delcomment/:id', authMiddleware, async(req, res) => {
+    const { id } = req.params;
+    const wroteComment = await Comments.findById(id);
+    console.log(wroteComment);
+    // await Comments.deleteOne({ _id: id });
+});
 
 
 module.exports = router;

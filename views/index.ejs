@@ -27,7 +27,6 @@
   <script>
     $(document).ready(function () {
       takeData();
-      console.log(localStorage.getItem('token'));
       if (localStorage.getItem('token')) {
         $('#login-button').hide();
         $('#logout-button').show();
