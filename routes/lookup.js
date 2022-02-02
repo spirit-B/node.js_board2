@@ -4,6 +4,7 @@ const Boards = require('../schemas/boardSchema') // db 불러오기
 const { format } = require("express/lib/response");
 const { findOneAndUpdate, db } = require("../schemas/boardSchema");
 const userSchema = require("../schemas/userSchema");
+const authMiddleware = require('../middlewares/auth-middleware');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 
@@ -30,7 +31,7 @@ router.post('/signup', async (req, res) => {
             return;
         }
     
-        const existUsers = await userSchema.findOne({nickname})
+        const existUsers = await userSchema.findOne({nickname}).exec();
         if (existUsers) {
             res.status(400).send({
                 errorMessage: '이미 존재하는 닉네임입니다!'
@@ -50,7 +51,7 @@ router.post('/signup', async (req, res) => {
 router.post('/auth', async(req, res) => {
     const { nickname, password } = req.body;
 
-    const user = await userSchema.findOne({ nickname, password });
+    const user = await userSchema.findOne({ nickname, password }).exec();
 
     if (!user) {
         res.status(401).send({
@@ -67,12 +68,13 @@ router.post('/auth', async(req, res) => {
 });
 
 // 글쓰기 데이터 저장 -> app.js : app.use(express.json())
-router.post('/toWrite', async (req, res) => {
-    const { name, title, createDate, password, contents } = req.body;
+router.post('/toWrite',  authMiddleware, async (req, res) => {
+    const { user } = res.locals;
+    const { title, createDate, contents } = req.body;
     
     // 빈칸이 있는지 없는지 체크
     try {
-        await Boards.create({ name, title, createDate, password, contents })
+        await Boards.create({ name: user['nickname'], title, createDate, contents })
         res.json({ success: '글을 저장했습니다!' })
     } catch {
         res.json({fail: '내용 외에 빈칸이 없게 작성해주세요!'})
@@ -81,7 +83,7 @@ router.post('/toWrite', async (req, res) => {
 
 // 메인 페이지 데이터 불러오기
 router.get('/fromWrite', async (req, res) => {
-    const createdData = await Boards.find();
+    const createdData = await Boards.find().exec();
     res.json({list: createdData});
 });
 

@@ -71,6 +71,7 @@ app.post('/inboard/delete/:id', async (req, res) => {
     const detailData = await Boards.findById(id);
     if (detailData['password'] === req.body.password) {
         await Boards.deleteOne({ _id: id });
+        await Comments.deleteOne({articleId: id}).populate('articleId');
         res.json({success: '삭제 완료!'});
     }
     else {

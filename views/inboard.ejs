@@ -36,9 +36,9 @@
                 data: {},
                 dataType: 'json',
                 headers: {
-                    authorization: `Bearer ${localStorage.getItem("token")}` 
+                    authorization: `Bearer ${localStorage.getItem("token")}`
                 },
-                success: function(response) {
+                success: function (response) {
                     let presentNick = response['nickname'];
                     let commentNick = response['commentlist'];
                     for (let i = 0; i < commentNick.length; i++) {
@@ -49,17 +49,25 @@
                             $(`#comment-delete-${commentNick[i]._id}`).show();
                         }
                     }
+                    if (response['nickname'] === $('#wrote-name').attr('placeholder')) {
+                        $('#modify_button').show();
+                        $('#delete_button').show();
+                    }
                 }
             });
         }
 
+        // 게시글 삭제하기 버튼 기능
         function deleteDetail() {
             $.ajax({
                 async: true,
                 type: 'POST',
                 url: "delete/<%=list.id%>",
                 dataType: 'json',
-                data: { password: $('#insert_delete_password').val() },
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`
+                },
+                data: {},
                 success: function (response) {
                     if (response['success']) {
                         location.href = '/';
@@ -71,13 +79,17 @@
             });
         }
 
+        // 게시글 수정하기 버튼 기능
         function toModify() {
             $.ajax({
                 async: true,
                 type: 'POST',
                 url: "modify/<%=list.id%>",
                 dataType: 'json',
-                data: { password: $('#insert_modify_password').val() },
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`
+                },
+                data: {},
                 success: function (response) {
                     if (response['success']) {
                         alert(response['success'])
@@ -92,12 +104,16 @@
             });
         }
 
+        // 게시글 수정 완료 버튼 기능
         function modifyComplete() {
             $.ajax({
                 async: true,
                 type: 'POST',
                 url: 'completeModify/<%=list.id%>',
                 dataType: 'json',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`
+                },
                 data: { contents: $('#wrote_contents').val() },
                 success: function (response) {
                     alert(response['success']);
@@ -123,20 +139,20 @@
                     alert('댓글 내용을 입력하세요!');
                 } else {
                     $.ajax({
-                       async: true,
-                       type: 'POST',
-                       url: '/api/comment/<%=list.id%>',
-                       dataType: 'json',
-                       headers: { 
-                           authorization: `Bearer ${localStorage.getItem("token")}`
+                        async: true,
+                        type: 'POST',
+                        url: '/api/comment/<%=list.id%>',
+                        dataType: 'json',
+                        headers: {
+                            authorization: `Bearer ${localStorage.getItem("token")}`
                         },
-                       data: {
-                           contents: $('#input-comment').val()
-                       },
-                       success: function(response) {
-                           window.location.reload();
-                           alert(response['success'])
-                       }
+                        data: {
+                            contents: $('#input-comment').val()
+                        },
+                        success: function (response) {
+                            window.location.reload();
+                            alert(response['success'])
+                        }
                     });
                 }
             }
@@ -144,7 +160,7 @@
 
         // 댓글 삭제
         function deleteComment(commentId) {
-            if(!confirm("정말 삭제하시겠습니까?")){ return; }
+            if (!confirm("정말 삭제하시겠습니까?")) { return; }
             $.ajax({
                 async: true,
                 type: 'POST',
@@ -154,12 +170,12 @@
                     authorization: `Bearer ${localStorage.getItem("token")}`
                 },
                 data: {},
-                success: function(response) {
+                success: function (response) {
                     window.location.reload();
                     alert(response['success']);
                     console.log('삭제 작동 확인');
                 },
-                error: function(response) {
+                error: function (response) {
                     window.location.reload();
                     alert(response['fail'])
                 }
@@ -189,7 +205,7 @@
                 data: {
                     modified: $(`#input-${commentId}`).val()
                 },
-                success: function(response) {
+                success: function (response) {
                     if (response['notInput']) {
                         alert(response['notInput']);
                         return;
@@ -197,7 +213,7 @@
                     window.location.reload();
                     alert(response['success']);
                 },
-                error: function(response) {
+                error: function (response) {
                     window.location.reload();
                     alert(response['fail']);
                 }
@@ -211,118 +227,83 @@
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon3">제목</span>
         </div>
-        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"
+        <input type="text" class="form-control" id="wrote-title" aria-describedby="basic-addon3"
             placeholder="<%=list.title %>" readonly>
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon3">작성자</span>
         </div>
-        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"
+        <input type="text" class="form-control" id="wrote-name" aria-describedby="basic-addon3"
             placeholder="<%=list.name%>" readonly>
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
             <span class="input-group-text" id="basic-addon3">작성날짜</span>
         </div>
-        <input type="text" class="form-control" id="basic-url" aria-describedby="basic-addon3"
+        <input type="text" class="form-control" id="wrote-date" aria-describedby="basic-addon3"
             placeholder="<%=moment(list.createDate).format('YYYY/MM/DD')%>" readonly>
     </div>
     <textarea class="form-control" id="wrote_contents" rows="5" readonly><%=list.contents%></textarea>
 
     <div>
+        <div class="input-group mb-3">
+            <input type="text" id="input-comment" class="form-control" placeholder="댓글을 입력하세요."
+                aria-label="Recipient's username" aria-describedby="basic-addon2" onclick="GotoLogin()">
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="writeComment()">댓글쓰기</button>
+            </div>
+        </div>
         <h3>댓글</h3>
         <table class="table table-hover">
             <thead>
                 <tr>
-                  <th scope="col">내용</th>
-                  <th scope="col">작성자</th>
-                  <th scope="col">날짜</th>
+                    <th scope="col">내용</th>
+                    <th scope="col">작성자</th>
+                    <th scope="col">날짜</th>
                 </tr>
             </thead>
             <tbody>
-                <% for (let i = 0; i < commentlist.length; i++) { %>
-                <tr>
-                    <td>
-                        <input style="display: none;  width: 600px;" id="input-<%=commentlist[i]._id%>">
-                        <span id="comment-<%=commentlist[i]._id%>"><%=commentlist[i].contents%></span>
-                    </td>
-                    <td><%=commentlist[i].name%></td>
-                    <td><%=moment(commentlist[i].createDate).format('YYYY/MM/DD')%>
-                        <span class="input-group-btn">
-                            <button class="btn btn-primary" type="button" style="display: none;"
-                            id="comment-modify-<%=commentlist[i]._id%>" onclick="toModifyComment('<%=commentlist[i]._id%>')">수정</button>
-                            <button class="btn btn-primary" type="button" style="display: none;"
-                            id="comment-delete-<%=commentlist[i]._id%>" onclick="deleteComment('<%=commentlist[i]._id%>')">삭제</button>
-                            <button class="btn btn-primary" type="button" style="display: none;"
-                            id="comment-modifycomplete-<%=commentlist[i]._id%>" onclick="modifyComment('<%=commentlist[i]._id%>')">수정완료</button>
-                        </span>
-                    </td>
-                </tr>
-                <% } %>
+                <% for (let i=0; i < commentlist.length; i++) { %>
+                    <tr>
+                        <td>
+                            <input style="display: none;  width: 600px;" id="input-<%=commentlist[i]._id%>">
+                            <span id="comment-<%=commentlist[i]._id%>">
+                                <%=commentlist[i].contents%>
+                            </span>
+                        </td>
+                        <td>
+                            <%=commentlist[i].name%>
+                        </td>
+                        <td>
+                            <%=moment(commentlist[i].createDate).format('YYYY /MM/DD')%>
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button" style="display: none;"
+                                        id="comment-modify-<%=commentlist[i]._id%>"
+                                        onclick="toModifyComment('<%=commentlist[i]._id%>')">수정</button>
+                                    <button class="btn btn-primary" type="button" style="display: none;"
+                                        id="comment-delete-<%=commentlist[i]._id%>"
+                                        onclick="deleteComment('<%=commentlist[i]._id%>')">삭제</button>
+                                    <button class="btn btn-primary" type="button" style="display: none;"
+                                        id="comment-modifycomplete-<%=commentlist[i]._id%>"
+                                        onclick="modifyComment('<%=commentlist[i]._id%>')">수정완료</button>
+                                </span>
+                        </td>
+                    </tr>
+                    <% } %>
             </tbody>
         </table>
-        <div class="input-group mb-3">
-            <input type="text" id="input-comment" class="form-control" placeholder="댓글을 입력하세요." aria-label="Recipient's username" aria-describedby="basic-addon2" onclick="GotoLogin()">
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" onclick="writeComment()">댓글쓰기</button>
-            </div>
-          </div>
     </div>
 
     <!-- Button trigger modal(modify) -->
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modifyModal" id="modify_button">
+    <button type="button" class="btn btn-primary" id="modify_button" onclick="toModify()" style="display: none;">
         수정하기
     </button>
 
-    <!-- Modal -->
-    <div class="modal fade" id="modifyModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modifyModalLabel">비밀번호를 입력하세요</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <input type="text" class="form-control" id="insert_modify_password" aria-describedby="basic-addon3">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                    <button type="button" class="btn btn-primary" onclick="toModify()">수정하기</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Button trigger modal(delete) -->
-    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#deleteModal" id="delete_button">
+    <button type="button" class="btn btn-primary" id="delete_button" onclick="deleteDetail()" style="display: none;">
         삭제하기
     </button>
-
-    <!-- Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="deleteModalLabel">비밀번호를 입력하세요</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <input type="text" class="form-control" id="insert_delete_password" aria-describedby="basic-addon3">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소하기</button>
-                    <button type="button" class="btn btn-primary" onclick="deleteDetail()">삭제하기</button>
-                </div>
-            </div>
-        </div>
-    </div>
     <button type="button" class="btn btn-primary" id="complete-modify-button" onclick="modifyComplete()">수정완료하기</button>
 </body>
 

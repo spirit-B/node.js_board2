@@ -23,9 +23,7 @@
     <script>
         function writeArticle() {
             //글을 쓴 사람의 정보
-            let user_name = $('#write-name').val()
             let user_title = $('#write-text').val()
-            let user_password = $('#write-password').val()
             let user_contents = $('#exampleFormControlTextarea1').val()
             let user_date = Date.now;
             $.ajax({
@@ -33,10 +31,11 @@
                 async: true,
                 url: '/api/toWrite',
                 dataType: 'json',
+                headers: {
+                    authorization: `Bearer ${localStorage.getItem("token")}`
+                },
                 data: {
-                    name: user_name,
                     title: user_title,
-                    password: user_password,
                     contents: user_contents,
                     createDate: user_date
                 },
@@ -57,23 +56,9 @@
 <body>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
-            <span class="input-group-text" id="inputGroup-sizing-default">이름</span>
-        </div>
-        <input type="text" id="write-name" class="form-control" aria-label="Default"
-            aria-describedby="inputGroup-sizing-default">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
             <span class="input-group-text" id="inputGroup-sizing-default">제목</span>
         </div>
         <input type="text" id="write-text" class="form-control" aria-label="Default"
-            aria-describedby="inputGroup-sizing-default">
-    </div>
-    <div class="input-group mb-3">
-        <div class="input-group-prepend">
-            <span class="input-group-text" id="inputGroup-sizing-default">비밀번호</span>
-        </div>
-        <input type="text" id="write-password" class="form-control" aria-label="Default"
             aria-describedby="inputGroup-sizing-default">
     </div>
     <div class="form-group">
