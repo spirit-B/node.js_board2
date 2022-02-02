@@ -271,13 +271,9 @@
                     <tr>
                         <td>
                             <input style="display: none;  width: 600px;" id="input-<%=commentlist[i]._id%>">
-                            <span id="comment-<%=commentlist[i]._id%>">
-                                <%=commentlist[i].contents%>
-                            </span>
+                            <span id="comment-<%=commentlist[i]._id%>"><%=commentlist[i].contents%></span>
                         </td>
-                        <td>
-                            <%=commentlist[i].name%>
-                        </td>
+                        <td><%=commentlist[i].name%></td>
                         <td>
                             <%=moment(commentlist[i].createDate).format('YYYY/MM/DD')%>
                                 <span class="input-group-btn">
@@ -293,7 +289,7 @@
                                 </span>
                         </td>
                     </tr>
-                    <% } %>
+                <% } %>
             </tbody>
         </table>
     </div>
