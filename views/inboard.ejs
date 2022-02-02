@@ -20,6 +20,9 @@
         integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
         crossorigin="anonymous"></script>
 
+    <!-- moment -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.min.js"></script>
+
     <title>글 내용</title>
     <script>
         $(document).ready(function () {
@@ -239,10 +242,10 @@
     </div>
     <div class="input-group mb-3">
         <div class="input-group-prepend">
-            <span class="input-group-text" id="basic-addon3">작성날짜</span>
+            <span class="input-group-text" id="basic-addon3">작성날짜 및 시간</span>
         </div>
         <input type="text" class="form-control" id="wrote-date" aria-describedby="basic-addon3"
-            placeholder="<%=moment(list.createDate).format('YYYY/MM/DD')%>" readonly>
+            placeholder="<%=moment(list.createDate).format('YYYY/MM/DD - HH:mm:ss')%>" readonly>
     </div>
     <textarea class="form-control" id="wrote_contents" rows="5" readonly><%=list.contents%></textarea>
 
@@ -276,7 +279,7 @@
                             <%=commentlist[i].name%>
                         </td>
                         <td>
-                            <%=moment(commentlist[i].createDate).format('YYYY /MM/DD')%>
+                            <%=moment(commentlist[i].createDate).format('YYYY/MM/DD')%>
                                 <span class="input-group-btn">
                                     <button class="btn btn-primary" type="button" style="display: none;"
                                         id="comment-modify-<%=commentlist[i]._id%>"
@@ -304,7 +307,9 @@
     <button type="button" class="btn btn-primary" id="delete_button" onclick="deleteDetail()" style="display: none;">
         삭제하기
     </button>
-    <button type="button" class="btn btn-primary" id="complete-modify-button" onclick="modifyComplete()">수정완료하기</button>
+    <button type="button" class="btn btn-primary" id="complete-modify-button" onclick="modifyComplete()">
+        수정완료하기
+    </button>
 </body>
 
 </html>
