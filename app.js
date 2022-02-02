@@ -96,5 +96,5 @@ app.post('/inboard/completeModify/:id', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`listening at http://localhost:${port}`);
+    console.log(`http://localhost:${port}에 접속되었습니다.`);
 });

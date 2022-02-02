@@ -17,12 +17,12 @@ router.post('/comment/:id', authMiddleware, async(req, res) => {
     const { user } = res.locals;
     const { contents, createDate } = req.body;
 
-    console.log(req.headers.authorization);
-    console.log(user['nickname']); // user에 저장된 정보 중 key가 nickname인것을 찾는다.
-    console.log(req.params.id);
+    // console.log(req.headers.authorization);
+    // console.log(user['nickname']); // user에 저장된 정보 중 key가 nickname인것을 찾는다.
+    // console.log(req.params.id);
     try {
         await Comments.create({ name: user['nickname'], contents, createDate, articleId: req.params.id});
-        res.json({ success: '댓글 작성 완료!'})
+        res.json({ success: '댓글을 작성하셨습니다!'})
     } catch (error) {
         res.json({ fail: '댓글 내용을 작성해주세요!'})
     }
@@ -39,10 +39,27 @@ router.get('/gettoken/:id', authMiddleware, async(req, res) => {
 // 댓글 삭제
 router.post('/delcomment/:id', authMiddleware, async(req, res) => {
     const { id } = req.params;
-    const wroteComment = await Comments.findById(id);
-    console.log(wroteComment);
-    // await Comments.deleteOne({ _id: id });
+    try {
+        await Comments.deleteOne({ _id: id });
+        res.json({ success: '댓글을 삭제했습니다!'});
+    } catch {
+        res.json({ fail: '잘못된 접근입니다!!'});
+    }
 });
 
+// 댓글 수정
+router.post('/modicomment/:id', authMiddleware, async(req, res) => {
+    const { id } = req.params;
+    try {
+        if (req.body.modified === "") {
+            res.json({ notInput: '내용을 입력하세요!' });
+            return;
+        }
+        await Comments.findByIdAndUpdate(id, {contents: req.body.modified});
+        res.json({ success: '댓글 수정 완료!'})
+    } catch {
+        res.json({ fail: '잘못된 접근입니다!!'});
+    }
+});
 
 module.exports = router;
